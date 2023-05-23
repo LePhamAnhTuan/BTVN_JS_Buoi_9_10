@@ -1,12 +1,12 @@
 console.log("first");
 var arrQLNV = [
   new taiKhoanUeser(
-    "SE140604",
+    "SE1406",
     "Đặng Trung Hiếu",
     "hieubede@gmail.com",
     "123456",
     "2023-05-03",
-    70,
+    1200000,
     "Nhân viên",
     195
   ),
@@ -68,7 +68,7 @@ function renderGiaoDien() {
    <th><button class="btn btn-danger me-3" onclick="xoaQLSV('${
      taiKhoanUeser.taiKhoan
    }')"><i class="fa-solid fa-trash"></i></button>
-  <button onclick="openModal('${
+  <button data-toggle="modal" data-target="#myModal" onclick="capNhatQLNV('${
     taiKhoanUeser.taiKhoan
   }')" class="btn btn-warning me-3"><i class="fa-solid fa-pen"></i></button></th>
 
@@ -82,10 +82,10 @@ function themTaiKhoan() {
   var hoTen = document.getElementById("name").value;
   var email = document.getElementById("email").value;
   var matKhau = document.getElementById("password").value;
-  var ngayLam = document.getElementById("datepicker").value;
-  var luongCoBan = document.getElementById("luongCB").value * 1;
+  var ngayLam = document.getElementById("datepicker").value + "";
+  var luongCoBan = document.getElementById("luongCB").value;
   var chucVu = document.getElementById("chucvu").value + "";
-  var gioLam = document.getElementById("gioLam").value * 1;
+  var gioLam = document.getElementById("gioLam").value;
   console.log("chucVu: ", chucVu);
   console.log("luongCoBan: ", luongCoBan);
   var taiKhoanMoi = new taiKhoanUeser(
@@ -98,10 +98,63 @@ function themTaiKhoan() {
     chucVu,
     gioLam
   );
-  arrQLNV.push(taiKhoanMoi);
-  console.log("arrQLNV: ", arrQLNV);
-  renderGiaoDien();
-  resetThemTaiKhoan();
+  var valid = true;
+  if (chucVu == "Chọn chức vụ" || chucVu == "") {
+    document.getElementById("tbChucVu").style.display = "inline-block";
+    document.getElementById("tbChucVu").innerHTML = "Vui lòng không để trống!";
+  } else if (chucVu !== "Chọn chức vụ") {
+    document.getElementById("tbChucVu").innerHTML = "";
+    document.getElementById("tbChucVu").style.display = "none";
+  }
+  if (ngayLam == "") {
+    document.getElementById("tbNgay").style.display = "inline-block";
+    document.getElementById("tbNgay").innerHTML = "Vui lòng không để trống!";
+  } else {
+    document.getElementById("tbNgay").style.display = "none";
+    document.getElementById("tbNgay").innerHTML = "";
+  }
+  valid = true;
+  valid =
+    kiemTraRong(taiKhoan, "tbTKNV") &
+    kiemTraRong(hoTen, "tbTen") &
+    kiemTraRong(email, "tbEmail") &
+    kiemTraRong(matKhau, "tbMatKhau") &
+    kiemTraRong(luongCoBan, "tbLuongCB") &
+    kiemTraRong(gioLam, "tbGiolam");
+  valid &&= taiKhoan2den6kytu(taiKhoan, "tbTKNV");
+  valid &&= kiemTraEmail(email, "tbEmail");
+  valid &&= tenNhanVien(hoTen, "tbTen");
+  valid &&= kiemTraPass(matKhau, "tbMatKhau");
+  valid &&= kiemTraLuongCB(luongCoBan, "tbLuongCB");
+  valid &&= kiemTraSoGioLam(gioLam, "tbGiolam");
+  // if (kiemTraRong(taiKhoan, "tbTKNV")) {
+  //   taiKhoan2den6kytu(taiKhoan, "tbTKNV");
+  // }
+
+  // if (kiemTraRong(email, "tbEmail")) {
+  //   kiemTraEmail(email, "tbEmail");
+  // }
+  // if (kiemTraRong(hoTen, "tbTen")) {
+  //   tenNhanVien(hoTen, "tbTen");
+  // }
+  // if (kiemTraRong(matKhau, "tbMatKhau")) {
+  //   kiemTraPass(matKhau, "tbMatKhau");
+  // }
+  // if (kiemTraRong(luongCoBan, "tbLuongCB")) {
+  //   kiemTraLuongCB(luongCoBan, "tbLuongCB");
+  // }
+  // if (kiemTraRong(gioLam, "tbGiolam")) {
+  //   kiemTraSoGioLam(gioLam, "tbGiolam");
+  // }
+
+  if (!valid) {
+    return;
+  } else {
+    arrQLNV.push(taiKhoanMoi);
+    console.log("arrQLNV: ", arrQLNV);
+    renderGiaoDien();
+    resetThemTaiKhoan();
+  }
 }
 
 function resetThemTaiKhoan() {
@@ -133,12 +186,9 @@ function xoaQLSV(taiKhoan) {
   renderGiaoDien();
   console.log("arrQLNV: ", arrQLNV);
 }
-function openModal(taiKhoan) {
-  document.getElementById("myModal").classList.add("pt-5");
-  document.getElementById("myModal").style.opacity = 1;
-  document.getElementById("myModal").style.display = "block";
-  var viTriXoa = timViTriQLNV(taiKhoan);
-  var taiKhoanUeser = arrQLNV[viTriXoa];
+function capNhatQLNV(taiKhoan) {
+  var viTriCapNhat = timViTriQLNV(taiKhoan);
+  var taiKhoanUeser = arrQLNV[viTriCapNhat];
   document.getElementById("tknv").readOnly = true;
   document.getElementById("email").readOnly = true;
   document.getElementById("tknv").value = taiKhoanUeser.taiKhoan;
@@ -175,24 +225,17 @@ function capNhatTTNV() {
     }
   }
   renderGiaoDien();
-  document.getElementById("myModal").classList.remove("pt-5");
-  document.getElementById("myModal").style.opacity = 0;
-  document.getElementById("myModal").style.display = "none";
+  resetThemTaiKhoan();
+  document.getElementById("tknv").readOnly = false;
+  document.getElementById("email").readOnly = false;
+  // document.querySelector(".modal-backdrop.fade").style.opacity = 0;
+  // document.getElementById("myModal").classList.remove("pt-5");
+  // document.getElementById("myModal").style.opacity = 0;
+  // document.getElementById("myModal").style.display = "none";
 }
+document.getElementById("btnCapNhat").onclick = capNhatTTNV;
 function timXepLoaiNhanVien() {
   var inputXepLoai = document.getElementById("searchName").value;
-  var nameViTriXepLoai = [];
-  var viTriXepLoai = [];
-  var kq = "";
-  // var index = -1;
-  // for (var i = 0; i < arrQLNV.length; i++) {
-  //   if (inputXepLoai === arrQLNV[i].xepLoai()) {
-  //     index = i;
-  //     console.log("arrQLNV: ", arrQLNV[index]);
-  //     arrQLNV.splice(i, 1, arrQLNV[i]);
-  //   }
-  //   renderGiaoDien();
-  // }
 
   if (inputXepLoai == "Nhân Viên Xuất Sắc") {
     arrQLNV = arrQLNV.filter(
@@ -216,7 +259,3 @@ function timXepLoaiNhanVien() {
   console.log("arrQLNV: ", arrQLNV);
   // console.log("arrQLNV: ", arrQLNV[index]);
 }
-
-document
-  .getElementById("btnTimNV")
-  .addEventListener("click", timXepLoaiNhanVien());

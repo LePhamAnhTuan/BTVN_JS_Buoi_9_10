@@ -1,16 +1,4 @@
 console.log("first");
-var arrQLNV = [
-  new taiKhoanUeser(
-    "SE1406",
-    "Đặng Trung Hiếu",
-    "hieubede@gmail.com",
-    "123456",
-    "2023-05-03",
-    1200000,
-    "Nhân viên",
-    195
-  ),
-];
 function taiKhoanUeser(
   taiKhoan,
   hoTen,
@@ -52,29 +40,36 @@ function taiKhoanUeser(
     }
   };
 }
+var arrQLNV = [];
+getLocalStorage();
+renderGiaoDien();
+
 console.log(taiKhoanUeser);
 function renderGiaoDien() {
   var content = "";
   for (var i = 0; i < arrQLNV.length; i++) {
-    var taiKhoanUeser = arrQLNV[i];
+    var taiKhoanUeser1 = new taiKhoanUeser();
+    var taiKhoanItem = arrQLNV[i];
+    Object.assign(taiKhoanUeser1, taiKhoanItem);
     content += `<tr>
-   <th>${taiKhoanUeser.taiKhoan}</th>
-   <th>${taiKhoanUeser.hoTen}</th>
-   <th>${taiKhoanUeser.email}</th>
-   <th>${taiKhoanUeser.ngayLam}</th>
-   <th>${taiKhoanUeser.chucVu}</th>
-   <th>${taiKhoanUeser.tongLuong()}</th>
-   <th>${taiKhoanUeser.xepLoai()}</th>
+   <th>${taiKhoanUeser1.taiKhoan}</th>
+   <th>${taiKhoanUeser1.hoTen}</th>
+   <th>${taiKhoanUeser1.email}</th>
+   <th>${taiKhoanUeser1.ngayLam}</th>
+   <th>${taiKhoanUeser1.chucVu}</th>
+   <th>${taiKhoanUeser1.tongLuong()}</th>
+   <th>${taiKhoanUeser1.xepLoai()}</th>
    <th><button class="btn btn-danger me-3" onclick="xoaQLSV('${
-     taiKhoanUeser.taiKhoan
+     taiKhoanUeser1.taiKhoan
    }')"><i class="fa-solid fa-trash"></i></button>
   <button data-toggle="modal" data-target="#myModal" onclick="capNhatQLNV('${
-    taiKhoanUeser.taiKhoan
+    taiKhoanUeser1.taiKhoan
   }')" class="btn btn-warning me-3"><i class="fa-solid fa-pen"></i></button></th>
 
  </tr>
     `;
   }
+
   document.getElementById("tableDanhSach").innerHTML = content;
 }
 function themTaiKhoan() {
@@ -127,31 +122,12 @@ function themTaiKhoan() {
   valid &&= kiemTraPass(matKhau, "tbMatKhau");
   valid &&= kiemTraLuongCB(luongCoBan, "tbLuongCB");
   valid &&= kiemTraSoGioLam(gioLam, "tbGiolam");
-  // if (kiemTraRong(taiKhoan, "tbTKNV")) {
-  //   taiKhoan2den6kytu(taiKhoan, "tbTKNV");
-  // }
-
-  // if (kiemTraRong(email, "tbEmail")) {
-  //   kiemTraEmail(email, "tbEmail");
-  // }
-  // if (kiemTraRong(hoTen, "tbTen")) {
-  //   tenNhanVien(hoTen, "tbTen");
-  // }
-  // if (kiemTraRong(matKhau, "tbMatKhau")) {
-  //   kiemTraPass(matKhau, "tbMatKhau");
-  // }
-  // if (kiemTraRong(luongCoBan, "tbLuongCB")) {
-  //   kiemTraLuongCB(luongCoBan, "tbLuongCB");
-  // }
-  // if (kiemTraRong(gioLam, "tbGiolam")) {
-  //   kiemTraSoGioLam(gioLam, "tbGiolam");
-  // }
-
   if (!valid) {
     return;
   } else {
     arrQLNV.push(taiKhoanMoi);
     console.log("arrQLNV: ", arrQLNV);
+    saveLocalStorage(arrQLNV);
     renderGiaoDien();
     resetThemTaiKhoan();
   }
@@ -183,6 +159,7 @@ function xoaQLSV(taiKhoan) {
   if (viTriXoa != -1) {
     arrQLNV.splice(viTriXoa, 1);
   }
+  saveLocalStorage();
   renderGiaoDien();
   console.log("arrQLNV: ", arrQLNV);
 }
@@ -224,14 +201,11 @@ function capNhatTTNV() {
       arrQLNV[i] = taiKhoanMoi;
     }
   }
+  saveLocalStorage(arrQLNV);
   renderGiaoDien();
   resetThemTaiKhoan();
   document.getElementById("tknv").readOnly = false;
   document.getElementById("email").readOnly = false;
-  // document.querySelector(".modal-backdrop.fade").style.opacity = 0;
-  // document.getElementById("myModal").classList.remove("pt-5");
-  // document.getElementById("myModal").style.opacity = 0;
-  // document.getElementById("myModal").style.display = "none";
 }
 document.getElementById("btnCapNhat").onclick = capNhatTTNV;
 function timXepLoaiNhanVien() {
@@ -255,7 +229,17 @@ function timXepLoaiNhanVien() {
   renderGiaoDien();
 
   console.log("arrQLNV: ", arrQLNV);
-  // console.log("index: ", index);
-  console.log("arrQLNV: ", arrQLNV);
-  // console.log("arrQLNV: ", arrQLNV[index]);
+}
+function saveLocalStorage() {
+  localStorage.setItem("arrQLNV", JSON.stringify(arrQLNV));
+}
+function removeLocalStorage(viTriXoa) {
+  localStorage.removeItem(arrQLNV[viTriXoa]);
+}
+function getLocalStorage() {
+  var arrQLNVLocal = JSON.parse(localStorage.getItem("arrQLNV"));
+
+  if (arrQLNVLocal != null) {
+    arrQLNV = arrQLNVLocal;
+  }
 }

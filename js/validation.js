@@ -108,3 +108,17 @@ function kiemTraSoGioLam(checkInput, idThongBao) {
     return false;
   }
 }
+//LocalStorage
+function saveLocalStorage() {
+  localStorage.setItem("arrQLNV", JSON.stringify(arrQLNV));
+}
+function removeLocalStorage(viTriXoa) {
+  localStorage.removeItem(arrQLNV[viTriXoa]);
+}
+function getLocalStorage() {
+  var arrQLNVLocal = JSON.parse(localStorage.getItem("arrQLNV"));
+
+  if (arrQLNVLocal != null) {
+    arrQLNV = arrQLNVLocal;
+  }
+}
